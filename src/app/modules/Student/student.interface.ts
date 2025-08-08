@@ -1,5 +1,5 @@
+/* eslint-disable no-unused-vars */
 import { Model, Types } from 'mongoose';
-import { TAcademicSemesterCode } from '../AcademicSemester/academicSemester.interface';
 
 export type TUserName = {
   firstName: string;
@@ -23,6 +23,11 @@ export type TLocalGuardian = {
   address: string;
 };
 
+// 🆕 Added new types to represent assessment progress
+export type TAssessmentStep = 1 | 2 | 3;
+
+export type TCertifiedLevel = 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
 export type TStudent = {
   id: string;
   user: Types.ObjectId;
@@ -38,14 +43,18 @@ export type TStudent = {
   guardian: TGuardian;
   localGuardian: TLocalGuardian;
   profileImg?: string;
-  currentSemester: TAcademicSemesterCode;
+  currentSemester: string;
   admissionSemester: Types.ObjectId;
   academicDepartment: Types.ObjectId;
   academicFaculty: Types.ObjectId;
   isDeleted: boolean;
+
+  // ✅ Assessment Progress Tracking
+  assessmentStep?: TAssessmentStep; // current step (1, 2, 3)
+  certifiedLevels?: TCertifiedLevel[]; // certified levels like ['A1', 'A2']
+  lastAssessmentScore?: number; // last score for tracking
 };
 
-//for creating static
 export interface StudentModel extends Model<TStudent> {
   // eslint-disable-next-line no-unused-vars
   isUserExists(id: string): Promise<TStudent | null>;

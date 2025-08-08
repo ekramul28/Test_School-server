@@ -99,11 +99,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       },
       required: [true, 'Gender is required'],
     },
-    currentSemester: {
-      type: Number,
-      required: [true, 'Current semester is required'],
-      default: 1,
-    },
+
     dateOfBirth: { type: Date },
     email: {
       type: String,
@@ -155,6 +151,23 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       type: Schema.Types.ObjectId,
       ref: 'AcademicFaculty',
     },
+
+    // ✅ New: Assessment Progress
+    assessmentStep: {
+      type: Number,
+      enum: [1, 2, 3],
+      default: 1,
+    },
+    certifiedLevels: {
+      type: [String],
+      enum: ['A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
+      default: [],
+    },
+    lastAssessmentScore: {
+      type: Number,
+      min: 0,
+      max: 100,
+    },
   },
   {
     toJSON: {
@@ -166,12 +179,17 @@ const studentSchema = new Schema<TStudent, StudentModel>(
   },
 );
 
-//  Virtual for full name
+// Virtual for full name
 studentSchema.virtual('fullName').get(function () {
-  return this?.name?.firstName + this?.name?.middleName + this?.name?.lastName;
+  return (
+    this?.name?.firstName +
+    (this?.name?.middleName ? ' ' + this?.name?.middleName : '') +
+    ' ' +
+    this?.name?.lastName
+  );
 });
 
-//  Virtual for MarkDistribution
+// Virtual for MarkDistribution
 studentSchema.virtual('marks', {
   ref: 'MarkDistribution',
   localField: '_id',
@@ -194,7 +212,7 @@ studentSchema.pre('aggregate', function (next) {
   next();
 });
 
-//Custom static method
+// Static method
 studentSchema.statics.isUserExists = async function (id: string) {
   const existingUser = await Student.findOne({ id });
   return existingUser;
