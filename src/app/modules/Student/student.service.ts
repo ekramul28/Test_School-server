@@ -8,14 +8,7 @@ import { TStudent } from './student.interface';
 import { Student } from './student.model';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
-  const studentQuery = new QueryBuilder(
-    Student.find()
-      .populate('user')
-      .populate('marks')
-      .populate('admissionSemester')
-      .populate('academicDepartment academicFaculty'),
-    query,
-  )
+  const studentQuery = new QueryBuilder(Student.find().populate('user'), query)
     .search(studentSearchableFields)
     .filter()
     .sort()
@@ -32,18 +25,13 @@ const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-  const result = await Student.findById(id)
-    .populate('admissionSemester')
-    .populate('marks')
-    .populate('academicDepartment academicFaculty');
+  const result = await Student.findById(id).populate('certificates');
   return result;
 };
 
 // Update own profile
 
 const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
-  console.log('id', id);
-  console.log('payload', payload);
   const session = await mongoose.startSession();
 
   try {
@@ -55,7 +43,7 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     const modifiedUpdatedData: Record<string, unknown> = {
       ...remainingStudentData,
     };
-    console.log('modifiedUpdatedData', modifiedUpdatedData);
+
     if (name && Object.keys(name).length) {
       for (const [key, value] of Object.entries(name)) {
         modifiedUpdatedData[`name.${key}`] = value;
@@ -78,7 +66,7 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     if (!existingStudent) {
       throw new AppError(httpStatus.NOT_FOUND, 'Student not found');
     }
-    console.log('modifiedUpdatedData2', modifiedUpdatedData);
+
     const updatedStudent = await Student.findByIdAndUpdate(
       id,
       modifiedUpdatedData,
@@ -95,7 +83,7 @@ const updateStudentIntoDB = async (id: string, payload: Partial<TStudent>) => {
     }
 
     await session.commitTransaction();
-    console.log('updatedStudent', updatedStudent);
+
     return updatedStudent;
   } catch (error) {
     await session.abortTransaction();
