@@ -19,26 +19,26 @@ router.post(
 
 router.get(
   '/',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.student),
   QuestionController.getAllQuestions,
 );
 
 router.get(
   '/:id',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.student),
   QuestionController.getSingleQuestion,
 );
 
 router.patch(
   '/:id',
-  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.student),
   validateRequest(updateQuestionSchema),
   QuestionController.updateQuestion,
 );
 
 router.delete(
   '/:id',
-  auth(USER_ROLE.superAdmin),
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin),
   QuestionController.deleteQuestion,
 );
 
