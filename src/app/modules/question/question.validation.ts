@@ -6,12 +6,11 @@ const Competency = z.string().min(1, 'Competency is required');
 
 export const createQuestionSchema = z.object({
   body: z.object({
-    title: z.string().min(5, 'Title must be at least 5 characters'),
+    questionText: z.string().min(5, 'Title must be at least 5 characters'),
     options: z.array(z.string()).min(2, 'At least 2 options required'),
     correctAnswer: z.string(),
     level: QuestionLevel,
     competency: Competency,
-    marks: z.number().min(1).max(100),
   }),
 });
 

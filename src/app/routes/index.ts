@@ -29,7 +29,7 @@ const moduleRoutes = [
     route: SupervisorRoutes,
   },
   {
-    path: '/question',
+    path: '/questions',
     route: QuestionRoutes,
   },
   {
