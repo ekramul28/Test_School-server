@@ -5,12 +5,10 @@ import mongoose from 'mongoose';
 import config from '../../config';
 import AppError from '../../errors/AppError';
 import { sendImageToCloudinary } from '../../utils/sendImageToCloudinary';
-import { AcademicDepartment } from '../AcademicDepartment/academicDepartment.model';
-import { AcademicSemester } from '../AcademicSemester/academicSemester.model';
+
 import { TAdmin } from '../Admin/admin.interface';
 import { Admin } from '../Admin/admin.model';
-import { TFaculty } from '../Faculty/faculty.interface';
-import { Faculty } from '../Faculty/faculty.model';
+
 import { TStudent } from '../Student/student.interface';
 import { Student } from '../Student/student.model';
 import { TUser } from './user.interface';
@@ -20,6 +18,8 @@ import {
   generateFacultyId,
   generateStudentId,
 } from './user.utils';
+import { TSupervisor } from '../Supervisor/supervisor.interface';
+import { Supervisor } from '../Supervisor/supervisor.model';
 
 const createStudentIntoDB = async (
   file: any,
@@ -37,31 +37,12 @@ const createStudentIntoDB = async (
   // set student email
   userData.email = payload.email;
 
-  // find academic semester info
-  const admissionSemester = await AcademicSemester.findById(
-    payload.admissionSemester,
-  );
-
-  if (!admissionSemester) {
-    throw new AppError(400, 'Admission semester not found');
-  }
-
-  // find department
-  const academicDepartment = await AcademicDepartment.findById(
-    payload.academicDepartment,
-  );
-
-  if (!academicDepartment) {
-    throw new AppError(400, 'Aademic department not found');
-  }
-  payload.academicFaculty = academicDepartment.academicFaculty;
-
   const session = await mongoose.startSession();
 
   try {
     session.startTransaction();
     //set  generated id
-    userData.id = await generateStudentId(admissionSemester);
+    userData.id = await generateStudentId();
 
     if (file) {
       const imageName = `${userData.id}${payload?.name?.firstName}`;
@@ -105,7 +86,7 @@ const createStudentIntoDB = async (
 const createFacultyIntoDB = async (
   file: any,
   password: string,
-  payload: TFaculty,
+  payload: TSupervisor,
 ) => {
   // create a user object
   const userData: Partial<TUser> = {};
@@ -117,17 +98,6 @@ const createFacultyIntoDB = async (
   userData.role = 'faculty';
   //set faculty email
   userData.email = payload.email;
-
-  // find academic department info
-  const academicDepartment = await AcademicDepartment.findById(
-    payload.academicDepartment,
-  );
-
-  if (!academicDepartment) {
-    throw new AppError(400, 'Academic department not found');
-  }
-
-  payload.academicFaculty = academicDepartment?.academicFaculty;
 
   const session = await mongoose.startSession();
 
@@ -157,7 +127,7 @@ const createFacultyIntoDB = async (
 
     // create a faculty (transaction-2)
 
-    const newFaculty = await Faculty.create([payload], { session });
+    const newFaculty = await Supervisor.create([payload], { session });
 
     if (!newFaculty.length) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create faculty');
@@ -243,7 +213,7 @@ const getMe = async (userId: string, role: string) => {
   }
 
   if (role === 'faculty') {
-    result = await Faculty.findOne({ id: userId }).populate('user');
+    result = await Supervisor.findOne({ id: userId }).populate('user');
   }
 
   return result;
