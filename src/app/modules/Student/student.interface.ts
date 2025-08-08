@@ -45,8 +45,6 @@ export type TStudent = {
   profileImg?: string;
   currentSemester: string;
   admissionSemester: Types.ObjectId;
-  academicDepartment: Types.ObjectId;
-  academicFaculty: Types.ObjectId;
   isDeleted: boolean;
 
   // ✅ Assessment Progress Tracking
