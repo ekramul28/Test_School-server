@@ -1,9 +1,11 @@
 import express from 'express';
-import { CertificateController } from './certificate.controller';
+
 import auth from '../../middlewares/auth';
 import validateRequest from '../../middlewares/validateRequest';
-import { createCertificateValidation } from './certificate.validation';
+
 import { USER_ROLE } from '../User/user.constant';
+import { createCertificateValidation } from './cretificate.validation';
+import { CertificateController } from './cretificate.controller';
 
 const router = express.Router();
 
