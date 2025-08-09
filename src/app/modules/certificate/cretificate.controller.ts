@@ -3,6 +3,7 @@ import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { CertificateService } from './certificate.service';
 
+// Create a new certificate
 const createCertificate = catchAsync(async (req, res) => {
   const { userId, examStep, certificationLevel } = req.body;
 
@@ -20,8 +21,9 @@ const createCertificate = catchAsync(async (req, res) => {
   });
 });
 
-const getUserCertificates = catchAsync(async (req, res) => {
-  const userId = req.params.userId;
+// Get all certificates for a given user
+const getCertificatesByUser = catchAsync(async (req, res) => {
+  const userId = req.params.userId; // make sure route uses :userId
 
   const certificates = await CertificateService.getCertificatesByUser(userId);
 
@@ -33,6 +35,7 @@ const getUserCertificates = catchAsync(async (req, res) => {
   });
 });
 
+// Delete a certificate (soft delete)
 const deleteCertificate = catchAsync(async (req, res) => {
   const id = req.params.id;
 
@@ -46,8 +49,36 @@ const deleteCertificate = catchAsync(async (req, res) => {
   });
 });
 
+// Email certificate to user
+const receiveCertificateByEmail = catchAsync(async (req, res) => {
+  const certificateId = req.params.id;
+  const { email } = req.body;
+
+  if (!email) {
+    return sendResponse(res, {
+      statusCode: httpStatus.BAD_REQUEST,
+      success: false,
+      message: 'Recipient email is required',
+      data: null,
+    });
+  }
+
+  const result = await CertificateService.receiveCertificateByEmail(
+    certificateId,
+    email,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Certificate sent via email successfully',
+    data: result,
+  });
+});
+
 export const CertificateController = {
   createCertificate,
-  getUserCertificates,
+  getCertificatesByUser,
   deleteCertificate,
+  receiveCertificateByEmail,
 };
