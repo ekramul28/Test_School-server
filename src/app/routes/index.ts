@@ -33,7 +33,7 @@ const moduleRoutes = [
     route: QuestionRoutes,
   },
   {
-    path: '/exam',
+    path: '/exams',
     route: ExamRoutes,
   },
   {

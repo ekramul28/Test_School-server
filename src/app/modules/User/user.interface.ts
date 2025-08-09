@@ -1,8 +1,9 @@
 /* eslint-disable no-unused-vars */
-import { Model } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 import { USER_ROLE } from './user.constant';
 
 export interface TUser {
+  _id: mongoose.Types.ObjectId;
   id: string;
   email: string;
   password: string;

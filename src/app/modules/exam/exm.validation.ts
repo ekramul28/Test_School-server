@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const createExamValidationSchema = z.object({
   body: z.object({
-    userId: z.string().nonempty(),
+    user: z.string().nonempty(),
     step: z.number().int().min(1).max(3),
     score: z.number().min(0).max(100),
     certificationLevel: z.string().nonempty(),
