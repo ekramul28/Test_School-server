@@ -24,8 +24,11 @@ const createCertificate = catchAsync(async (req, res) => {
 // Get all certificates for a given user
 const getCertificatesByUser = catchAsync(async (req, res) => {
   const userId = req.params.userId; // make sure route uses :userId
-
-  const certificates = await CertificateService.getCertificatesByUser(userId);
+  const query = req.query;
+  const certificates = await CertificateService.getCertificatesByUser(
+    userId,
+    query,
+  );
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

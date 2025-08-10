@@ -5,7 +5,8 @@ import { Types } from 'mongoose';
 import PDFDocument from 'pdfkit';
 import { Certificate } from './cretificate.model';
 import { sendEmail } from '../../utils/sendEmail';
-
+import QueryBuilder from '../../builder/QueryBuilder';
+const CertificateSearchableFields = ['certificationLevel']; // adjust fields as needed
 const generateCertificate = async (
   userId: Types.ObjectId,
   examStep: 1 | 2 | 3,
@@ -44,12 +45,33 @@ const createCertificate = async (data: {
   });
 };
 
-const getCertificatesByUser = async (userId: string, examStep: number = 1) => {
-  return await Certificate.find({
-    user: userId,
-    examStep,
-    isDeleted: false,
-  }).populate('user');
+export const getCertificatesByUser = async (
+  userId: string,
+  query: Record<string, unknown>,
+) => {
+  // Ensure examStep has a default value if not provided
+  if (!query.examStep) {
+    query.examStep = 1;
+  }
+
+  // Always include the user filter
+  const certificateQuery = new QueryBuilder(
+    Certificate.find({ user: userId, isDeleted: false }),
+    query,
+  )
+    .search(CertificateSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await certificateQuery.modelQuery.populate('user');
+  const meta = await certificateQuery.countTotal();
+
+  return {
+    data: result,
+    meta,
+  };
 };
 
 const deleteCertificate = async (id: string) => {
