@@ -7,21 +7,22 @@ import { TExam } from './exm.interface';
 import { Exam } from './exm.model';
 
 const createExamInDB = async (payload: TExam) => {
-  let exam = await Exam.findOne({ userId: payload.user, step: payload.step });
+  const exam = await Exam.findOne({ _id: payload.user, step: payload.step });
 
   if (!exam) {
     // If not found, create a new exam document with the payload
-    exam = new Exam(payload);
-    return await exam.save();
+    const exams = new Exam(payload);
+    return await exams.save();
   }
 };
 
 const getExamByUserAndStepFromDB = async (userId: string, step: number) => {
-  const exam = await Exam.findOne({ userId, step });
+  const exam = await Exam.findOne({ _id: userId, step });
   return exam;
 };
 
 const updateExamInDB = async (id: string, payload: Partial<TExam>) => {
+  console.log('ksdjckds');
   const updatedExam = await Exam.findByIdAndUpdate(id, payload, {
     new: true,
     runValidators: true,
