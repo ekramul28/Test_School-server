@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import PDFDocument from 'pdfkit';
 import nodemailer from 'nodemailer';
 import { Certificate } from './cretificate.model';
+import { sendEmail } from '../../utils/sendEmail';
 
 const generateCertificate = async (
   userId: Types.ObjectId,
@@ -79,34 +80,20 @@ const receiveCertificateByEmail = async (
   certificateId: string,
   recipientEmail: string,
 ) => {
-  const certificate =
-    await Certificate.findById(certificateId).populate('user');
+  const certificate = await Certificate.findById(certificateId);
   if (!certificate) throw new Error('Certificate not found');
 
   const pdfBuffer = await downloadCertificateByPdf(certificateId);
 
-  const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: process.env.SMTP_SECURE === 'true',
-    auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
-    },
-  });
+  console.log(pdfBuffer);
 
-  await transporter.sendMail({
-    from: `"Your Company" <${process.env.SMTP_FROM}>`,
-    to: recipientEmail,
-    subject: 'Your Certificate',
-    text: `Dear ${certificate.user.name},\n\nPlease find your certificate attached.\n\nBest regards,\nYour Company`,
-    attachments: [
-      {
-        filename: `certificate-${certificateId}.pdf`,
-        content: pdfBuffer,
-      },
-    ],
-  });
+  sendEmail(
+    recipientEmail,
+    '',
+    'This is your Certificate',
+    pdfBuffer,
+    `certificate-${certificateId}.pdf`,
+  );
 
   return { success: true, message: 'Certificate emailed successfully' };
 };
