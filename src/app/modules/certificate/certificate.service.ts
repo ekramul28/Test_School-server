@@ -3,7 +3,6 @@
 import { Types } from 'mongoose';
 
 import PDFDocument from 'pdfkit';
-import nodemailer from 'nodemailer';
 import { Certificate } from './cretificate.model';
 import { sendEmail } from '../../utils/sendEmail';
 
@@ -25,6 +24,17 @@ const createCertificate = async (data: {
   certificationLevel: string;
   issuedAt?: Date;
 }) => {
+  const existing = await Certificate.findOne({
+    user: data.user,
+    examStep: data.examStep,
+    isDeleted: false,
+  });
+
+  if (existing) {
+    // If exists, return the existing certificate
+    return existing;
+  }
+
   return await Certificate.create({
     user: data.user,
     examStep: data.examStep,
@@ -34,10 +44,12 @@ const createCertificate = async (data: {
   });
 };
 
-const getCertificatesByUser = async (userId: string) => {
-  return await Certificate.find({ user: userId, isDeleted: false }).populate(
-    'user',
-  );
+const getCertificatesByUser = async (userId: string, examStep: number = 1) => {
+  return await Certificate.find({
+    user: userId,
+    examStep,
+    isDeleted: false,
+  }).populate('user');
 };
 
 const deleteCertificate = async (id: string) => {

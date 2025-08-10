@@ -2,12 +2,18 @@
 import httpStatus from 'http-status';
 import mongoose from 'mongoose';
 import AppError from '../../errors/AppError';
-import { Exam } from './exm.model';
+
 import { TExam } from './exm.interface';
+import { Exam } from './exm.model';
 
 const createExamInDB = async (payload: TExam) => {
-  const exam = new Exam(payload);
-  return await exam.save();
+  let exam = await Exam.findOne({ userId: payload.user, step: payload.step });
+
+  if (!exam) {
+    // If not found, create a new exam document with the payload
+    exam = new Exam(payload);
+    return await exam.save();
+  }
 };
 
 const getExamByUserAndStepFromDB = async (userId: string, step: number) => {
