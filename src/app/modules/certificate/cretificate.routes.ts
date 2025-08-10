@@ -35,5 +35,10 @@ router.post(
   auth(USER_ROLE.admin, USER_ROLE.student),
   CertificateController.receiveCertificateByEmail,
 );
+router.get(
+  '/:id',
+  auth(USER_ROLE.admin, USER_ROLE.student),
+  CertificateController.downloadCertificateByPdf,
+);
 
 export const CertificateRoutes = router;

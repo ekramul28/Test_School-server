@@ -37,7 +37,7 @@ const moduleRoutes = [
     route: ExamRoutes,
   },
   {
-    path: '/certificate',
+    path: '/certificates',
     route: CertificateRoutes,
   },
 

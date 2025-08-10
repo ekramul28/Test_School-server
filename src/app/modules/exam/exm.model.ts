@@ -1,36 +1,16 @@
 import { Schema, model } from 'mongoose';
-import { ExamModel, TExam, TExamAnswer, TExamScore } from './exm.interface';
+import { ExamModel, TExam, TExamScore } from './exm.interface';
 
-const examAnswerSchema = new Schema<TExamAnswer>({
-  questionId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Question',
-  },
-  selectedOption: {
-    type: String,
-    required: true,
-  },
-  isCorrect: {
-    type: Boolean,
-    required: true,
-  },
-});
+// TypeScript interfaces (example)
 
 const examScoreSchema = new Schema<TExamScore>({
-  step: {
-    type: Number,
-    required: true,
-    enum: [1, 2, 3], // Step 1, 2, 3
-  },
-  scorePercentage: {
+  totalQuestions: {
     type: Number,
     required: true,
   },
-  certificationLevel: {
-    type: String,
+  correctAnswers: {
+    type: Number,
     required: true,
-    enum: ['Fail', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
   },
 });
 
@@ -38,17 +18,17 @@ const examSchema = new Schema<TExam, ExamModel>(
   {
     user: {
       type: Schema.Types.ObjectId,
-      required: true,
       ref: 'User',
-      unique: false,
+      required: true,
     },
     step: {
       type: Number,
+      enum: [1, 2, 3],
       required: true,
-      enum: [1, 2, 3], // Step 1: A1&A2, Step 2: B1&B2, Step 3: C1&C2
     },
-    answers: {
-      type: [examAnswerSchema],
+    certificationLevel: {
+      type: String,
+      enum: ['Fail', 'A1', 'A2', 'B1', 'B2', 'C1', 'C2'],
       required: true,
     },
     score: {
@@ -75,33 +55,26 @@ const examSchema = new Schema<TExam, ExamModel>(
   },
 );
 
-// Filter out deleted documents by default
+// Middleware to exclude deleted exams by default
 examSchema.pre('find', function (next) {
-  this.find({ isDeleted: { $ne: true } });
+  this.where({ isDeleted: { $ne: true } });
   next();
 });
-
 examSchema.pre('findOne', function (next) {
-  this.find({ isDeleted: { $ne: true } });
+  this.where({ isDeleted: { $ne: true } });
   next();
 });
-
 examSchema.pre('aggregate', function (next) {
   this.pipeline().unshift({ $match: { isDeleted: { $ne: true } } });
   next();
 });
 
-// Static method to check if user already has exam for a step
+// Static method to check if exam exists for a user and step
 examSchema.statics.isExamExists = async function (
   userId: string,
   step: number,
 ) {
-  const existingExam = await this.findOne({
-    user: userId,
-    step,
-    isDeleted: false,
-  });
-  return existingExam;
+  return await this.findOne({ user: userId, step, isDeleted: false });
 };
 
 export const Exam = model<TExam, ExamModel>('Exam', examSchema);

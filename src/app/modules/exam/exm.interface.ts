@@ -1,22 +1,16 @@
 /* eslint-disable no-unused-vars */
 import { Document, Model, Types } from 'mongoose';
 
-export interface TExamAnswer {
-  questionId: Types.ObjectId;
-  selectedOption: string;
-  isCorrect: boolean;
-}
-
 export interface TExamScore {
-  step: 1 | 2 | 3;
-  scorePercentage: number;
-  certificationLevel: 'Fail' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+  totalQuestions: number;
+  correctAnswers: number;
 }
 
 export interface TExam extends Document {
   user: Types.ObjectId;
   step: 1 | 2 | 3;
-  answers: TExamAnswer[];
+  certificationLevel: 'Fail' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
+
   score: TExamScore;
   completedAt?: Date | null;
   isRetakeAllowed: boolean;
