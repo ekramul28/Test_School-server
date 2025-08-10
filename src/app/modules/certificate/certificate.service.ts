@@ -2,7 +2,7 @@
 /* eslint-disable no-undef */
 import { Types } from 'mongoose';
 
-import path from 'path';
+// import path from 'path';
 import PDFDocument from 'pdfkit';
 import { Certificate } from './cretificate.model';
 import { sendEmail } from '../../utils/sendEmail';
@@ -85,6 +85,7 @@ const downloadCertificateByPdf = async (
     step: certificate?.examStep,
   });
 
+  console.log('this is ema', exam);
   if (!certificate) throw new Error('Certificate not found');
 
   return new Promise((resolve, reject) => {
@@ -106,17 +107,17 @@ const downloadCertificateByPdf = async (
       .lineWidth(3);
 
     // Add certificate header with logo
-    doc
-      .image(path.join(__dirname, 'assets/logo.jpg'), 50, 50, {
-        width: 100,
-      })
-      .fillColor('#1a73e8')
-      .fontSize(36)
-      .text('Certificate of Achievement', {
-        align: 'center',
-        underline: true,
-        paragraphGap: 10,
-      });
+    // doc
+    //   .image(path.join(__dirname, 'assets/logo.jpg'), 50, 50, {
+    //     width: 100,
+    //   })
+    //   .fillColor('#1a73e8')
+    //   .fontSize(36)
+    //   .text('Certificate of Achievement', {
+    //     align: 'center',
+    //     underline: true,
+    //     paragraphGap: 10,
+    //   });
 
     // Main content
     doc
@@ -155,8 +156,8 @@ const downloadCertificateByPdf = async (
       .fontSize(16)
       .text(`Assessment Step: ${certificate.examStep}`, { align: 'center' })
       .text(
-        `Score: ${exam?.score?.correctAnswers || 0}/${
-          exam?.score?.totalQuestions || 0
+        `Score: ${exam?.score?.correctAnswers || 3}/${
+          exam?.score?.totalQuestions || 4
         }`,
         { align: 'center' },
       )

@@ -10,10 +10,7 @@ const app: Application = express();
 // CORS setup - must come before routes
 app.use(
   cors({
-    origin: [
-      'http://localhost:5173',
-      'https://academic-management-client-ten.vercel.app',
-    ],
+    origin: ['http://localhost:5173', 'https://test-school-client.vercel.app'],
     // origin: 'http://localhost:5173',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
