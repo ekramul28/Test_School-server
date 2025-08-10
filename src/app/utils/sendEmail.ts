@@ -8,8 +8,8 @@ export const sendEmail = async (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   html: any,
   subject: string,
-  attachmentBuffer: Buffer,
-  filename: string,
+  attachmentBuffer?: Buffer,
+  filename?: string,
 ) => {
   const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com.',

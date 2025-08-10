@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-undef */
 import { Types } from 'mongoose';
 
 import PDFDocument from 'pdfkit';
@@ -49,7 +51,7 @@ const deleteCertificate = async (id: string) => {
 const downloadCertificateByPdf = async (
   certificateId: string,
 ): Promise<Buffer> => {
-  const certificate =
+  const certificate: any =
     await Certificate.findById(certificateId).populate('user');
   if (!certificate) throw new Error('Certificate not found');
 
@@ -63,9 +65,9 @@ const downloadCertificateByPdf = async (
 
     doc.fontSize(25).text('Certificate of Achievement', { align: 'center' });
     doc.moveDown();
-    doc
-      .fontSize(18)
-      .text(`Awarded to: ${certificate.user?.email}`, { align: 'center' });
+    doc.fontSize(18).text(`Awarded to: ${certificate.user?.email as string}`, {
+      align: 'center',
+    });
     doc.text(`Level: ${certificate.certificationLevel}`, { align: 'center' });
     doc.text(`Step: ${certificate.examStep}`, { align: 'center' });
     doc.text(`Issued on: ${certificate.issueDate.toDateString()}`, {
@@ -84,8 +86,6 @@ const receiveCertificateByEmail = async (
   if (!certificate) throw new Error('Certificate not found');
 
   const pdfBuffer = await downloadCertificateByPdf(certificateId);
-
-  console.log(pdfBuffer);
 
   sendEmail(
     recipientEmail,
