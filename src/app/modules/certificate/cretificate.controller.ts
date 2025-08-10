@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable no-undef */
 import httpStatus from 'http-status';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { CertificateService } from './certificate.service';
+
+import mongoose from 'mongoose';
 
 // Create a new certificate
 const createCertificate = catchAsync(async (req, res) => {
@@ -78,22 +82,44 @@ const receiveCertificateByEmail = catchAsync(async (req, res) => {
     data: result,
   });
 });
-// Email certificate to user
 const downloadCertificateByPdf = catchAsync(async (req, res) => {
-  const certificateId = req.params.id;
+  try {
+    const { id } = req.params;
 
-  const buffer =
-    await CertificateService.downloadCertificateByPdf(certificateId);
+    // Validate ID format
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid certificate ID format',
+      });
+    }
 
-  res.setHeader('Content-Type', 'application/pdf');
-  res.setHeader(
-    'Content-Disposition',
-    `attachment; filename="certificate-${certificateId}.pdf"`,
-  );
+    const buffer = await CertificateService.downloadCertificateByPdf(id);
 
-  res.send(buffer);
+    if (!buffer) {
+      return res.status(404).json({
+        success: false,
+        message: 'Certificate not found',
+      });
+    }
+
+    // Success - send PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="certificate-${id}.pdf"`,
+    );
+    res.send(buffer);
+  } catch (error: any) {
+    // Proper error response
+    res.status(error.statusCode || 500).json({
+      success: false,
+      message: error.message || 'Certificate generation failed',
+      // Only include stack in development
+      ...(process.env.NODE_ENV === 'development' && { stack: error.stack }),
+    });
+  }
 });
-
 export const CertificateController = {
   createCertificate,
   getCertificatesByUser,

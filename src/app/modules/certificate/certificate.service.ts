@@ -6,6 +6,7 @@ import path from 'path';
 import PDFDocument from 'pdfkit';
 import { Certificate } from './cretificate.model';
 import { sendEmail } from '../../utils/sendEmail';
+import { Exam } from '../exam/exm.model';
 
 const generateCertificate = async (
   userId: Types.ObjectId,
@@ -76,9 +77,13 @@ const deleteCertificate = async (id: string) => {
 const downloadCertificateByPdf = async (
   certificateId: string,
 ): Promise<Buffer> => {
-  const certificate: any = await Certificate.findById(certificateId)
-    .populate('user')
-    .populate('exam');
+  const certificate: any =
+    await Certificate.findById(certificateId).populate('user');
+
+  const exam = await Exam.findOne({
+    _id: certificate.user._id,
+    step: certificate?.examStep,
+  });
 
   if (!certificate) throw new Error('Certificate not found');
 
@@ -102,7 +107,7 @@ const downloadCertificateByPdf = async (
 
     // Add certificate header with logo
     doc
-      .image(path.join(__dirname, 'src/app/assets/logo.jpg'), 50, 50, {
+      .image(path.join(__dirname, 'assets/logo.jpg'), 50, 50, {
         width: 100,
       })
       .fillColor('#1a73e8')
@@ -150,8 +155,8 @@ const downloadCertificateByPdf = async (
       .fontSize(16)
       .text(`Assessment Step: ${certificate.examStep}`, { align: 'center' })
       .text(
-        `Score: ${certificate.exam?.score?.correctAnswers || 0}/${
-          certificate.exam?.score?.totalQuestions || 0
+        `Score: ${exam?.score?.correctAnswers || 0}/${
+          exam?.score?.totalQuestions || 0
         }`,
         { align: 'center' },
       )
